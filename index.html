@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+<meta charset="UTF-8">
+<title>AMATEKA PRO 2025</title>
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:linear-gradient(120deg,#222,#444);
+  color:white;
+  text-align:center;
+  overflow-x:hidden;
+}
+.moving-text{
+  font-size:24px;
+  animation:move 8s linear infinite;
+  margin:20px 0;
+}
+@keyframes move{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+.input-box{
+  padding:10px;
+  margin:10px auto;
+  display:block;
+  width:80%;
+  max-width:400px;
+  border-radius:5px;
+  border:none;
+}
+.btn{
+  padding:10px 20px;
+  margin:15px auto;
+  display:block;
+  max-width:200px;
+  background:#00c2ff;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+.hidden{display:none;}
+.emoji{
+  font-size:40px;
+  position:fixed;
+  pointer-events:none;
+  user-select:none;
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-15px)}
+  100%{transform:translateY(0)}
+}
+.student-card,.answer-card{
+  background:rgba(255,255,255,0.1);
+  margin:10px auto;
+  padding:10px;
+  border-radius:8px;
+  max-width:500px;
+  text-align:left;
+}
+img{max-width:100px;border-radius:10px;margin-bottom:10px;}
+#certificate{
+  display:none;
+  margin:20px auto;
+  padding:20px;
+  max-width:600px;
+  border:5px solid #00c2ff;
+  border-radius:15px;
+  background: linear-gradient(135deg,#111,#333);
+  box-shadow:0 0 15px #00c2ff;
+  color:white;
+  text-align:center;
+}
+#certificate h3{font-size:32px;color:#00ffcc;margin-bottom:10px;}
+#certificate p{font-size:18px;margin:5px 0;}
+#certificate button{
+  margin-top:15px;
+  padding:10px 20px;
+  background:#00c2ff;
+  border:none;
+  border-radius:8px;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="moving-text">🤺Helper_@47</div>
+<h2>Murakaza neza kuri promo AMATEKA!</h2>
+
+<!-- Password Page -->
+<div id="password-page">
+  <h3>Injiza Password</h3>
+  <input type="password" id="main-password" class="input-box" placeholder="Andika password..." />
+  <button onclick="checkMainPassword()" class="btn">Kwemeza</button>
+</div>
+
+<!-- Profile Page -->
+<div id="profile-page" class="hidden">
+  <h3>Andika imyirondoro yawe</h3>
+  <input type="text" id="name" class="input-box" placeholder="Izina ryawe"/>
+  <input type="text" id="class" class="input-box" placeholder="Class wizemo"/>
+  <input type="password" id="student-pass" class="input-box" placeholder="Hitamo password yawe"/>
+  <input type="file" id="photo" class="input-box" accept="image/*"/>
+  <button onclick="submitProfile()" class="btn">Komeza</button>
+</div>
+
+<!-- Message Page -->
+<div id="message-page" class="hidden">
+  <h3>Ohereza ubutumwa</h3>
+  <textarea id="message" class="input-box" rows="4" placeholder="Andika ubutumwa..."></textarea>
+  <button onclick="sendMessage()" class="btn">Ohereza</button>
+  <h3>Ubutumwa bwoherejwe:</h3>
+  <div id="messages-list"></div>
+  <h3>🔐 Reba urutonde rw'abanditse</h3>
+  <input type="password" id="list-password" class="input-box" placeholder="Andika password yawe"/>
+  <button onclick="showStudentList()" class="btn">Reba</button>
+  <div id="student-list" class="hidden"></div>
+</div>
+
+<!-- QA Page -->
+<div id="qa-page" class="hidden">
+  <h3>Ibibazo n'Ibisubizo</h3>
+  <select id="question-select" class="input-box">
+    <option value="">Hitamo ikibazo</option>
+    <option value="0">Ni nde mucuruzi wagize abakiriya benshi?</option>
+    <option value="1">Ninde wari chef wa S3B?</option>
+    <option value="2">Ninde wari chef wa S3C?</option>
+    <option value="3">Ninde wari chef wa S3A?</option>
+    <option value="4">Ni iyihe couple yari ikubiye?</option>
+  </select>
+  <textarea id="answer-text" class="input-box" rows="4" placeholder="Andika igisubizo hano..."></textarea>
+  <input type="text" id="answer-username" class="input-box" placeholder="Andika izina ryawe"/>
+  <button onclick="submitAnswer()" class="btn">Ohereza Igisubizo</button>
+  <h3>Ibisubizo byose</h3>
+  <div id="answers-list"></div>
+</div>
+
+<!-- Hero Week -->
+<div id="hero-page" class="hidden">
+  <h3>Icyumweru cy’Intwari</h3>
+  <select id="hero-category" class="input-box">
+    <option value="">Hitamo category</option>
+    <option>Umuntu wacuruje cyane</option>
+    <option>Umuntu warutinyitse</option>
+    <option>Umuntu wasengaga cyane</option>
+    <option>Umuchef mwiza</option>
+    <option>Umukobwa wakundwaga</option>
+    <option>Umuntu wambere wazanye phone</option>
+    <option>Umuhanzi ukunzwe</option>
+    <option>Umuntu wambere wanditse story</option>
+  </select>
+  <input type="text" id="hero-name" class="input-box" placeholder="Andika izina ry'umunyeshuri"/>
+  <button onclick="awardHero()" class="btn">Tanga Certificate</button>
+  <div id="certificate"></div>
+</div>
+
+<script>
+let students=JSON.parse(localStorage.getItem('amateka_students')||'[]');
+let messages=JSON.parse(localStorage.getItem('amateka_messages')||'[]');
+let answers=JSON.parse(localStorage.getItem('amateka_answers')||'[]');
+
+function checkMainPassword(){
+  const pw=document.getElementById('main-password').value.trim();
+  if(pw==='amateka'){
+    document.getElementById('password-page').classList.add('hidden');
+    document.getElementById('profile-page').classList.remove('hidden');
+  }else{alert('Password si yo!')}
+}
+function submitProfile(){
+  const name=document.getElementById('name').value.trim();
+  const className=document.getElementById('class').value.trim();
+  const pass=document.getElementById('student-pass').value.trim();
+  const photo=document.getElementById('photo').files[0];
+  if(!name||!className||!pass||!photo){alert('Zuza imyirondoro yose!'); return;}
+  if(students.find(s=>s.name===name)){alert('Izina ryamaze kwiyandikisha'); return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    students.push({name,class:className,pass,photo:e.target.result});
+    localStorage.setItem('amateka_students',JSON.stringify(students));
+    document.getElementById('profile-page').classList.add('hidden');
+    document.getElementById('message-page').classList.remove('hidden');
+    updateMessages();
+  }
+  reader.readAsDataURL(photo);
+}
+function sendMessage(){
+  const msg=document.getElementById('message').value.trim();
+  if(!msg){alert('Andika ubutumwa');return;}
+  const student=students[students.length-1];
+  messages.push({name:student.name,message:msg});
+  localStorage.setItem('amateka_messages',JSON.stringify(messages));
+  document.getElementById('message').value='';
+  updateMessages();
+}
+function updateMessages(){
+  const container=document.getElementById('messages-list');
+  container.innerHTML='';
+  if(messages.length===0){container.innerHTML='<p>Ntawohereje ubutumwa</p>'; return;}
+  messages.forEach(m=>{
+    const p=document.createElement('p');
+    p.innerHTML=`<strong>${m.name}:</strong> ${m.message}`;
+    container.appendChild(p);
+  });
+}
+function showStudentList(){
+  const pw=document.getElementById('list-password').value.trim();
+  const found=students.find(s=>s.pass===pw);
+  if(!found){alert('Password si yo');return;}
+  const container=document.getElementById('student-list');
+  container.innerHTML='';
+  students.forEach(s=>{
+    const div=document.createElement('div');
+    div.className='student-card';
+    div.innerHTML=`<img src="${s.photo}" alt="${s.name}"/><p><strong>${s.name}</strong></p><p>Class:${s.class}</p>`;
+    container.appendChild(div);
+  });
+  container.classList.remove('hidden');
+}
+function submitAnswer(){
+  const q=document.getElementById('question-select').value;
+  const ans=document.getElementById('answer-text').value.trim();
+  const user=document.getElementById('answer-username').value.trim();
+  if(q===''||!ans||!user){alert('Zuza byose');return;}
+  const questions=["Ni nde mucuruzi wagize abakiriya benshi?","Ninde wari chef wa S3B?","Ninde wari chef wa S3C?","Ninde wari chef wa S3A?","Ni iyihe couple yari ikubiye?"];
+  answers.push({questionIndex:q,question:questions[q],answer:ans,user,timestamp:new Date().toLocaleString()});
+  localStorage.setItem('amateka_answers',JSON.stringify(answers));
+  document.getElementById('question-select').value='';
+  document.getElementById('answer-text').value='';
+  document.getElementById('answer-username').value='';
+  displayAnswers();
+}
+function displayAnswers(){
+  const container=document.getElementById('answers-list');
+  container.innerHTML='';
+  if(answers.length===0){container.innerHTML='<p>Nta bisubizo</p>';return;}
+  answers.forEach(a=>{
+    const div=document.createElement('div');
+    div.className='answer-card';
+    div.innerHTML=`<strong>Ikibazo:</strong>${a.question}<br/><strong>Igisubizo:</strong>${a.answer}<br/><strong>Uwatanze:</strong>${a.user}<br/><small><em>${a.timestamp}</em></small>`;
+    container.appendChild(div);
+  });
+}
+function awardHero(){
+  const cat=document.getElementById('hero-category').value;
+  const name=document.getElementById('hero-name').value.trim();
+  if(!cat||!name){alert('Hitamo category kandi wandike izina');return;}
+  const cert=document.getElementById('certificate');
+  cert.style.display='block';
+  cert.innerHTML=`<h3>Certificate ya ${name}</h3><p><strong>Category:</strong>${cat}</p><p><strong>Promotion:</strong>AMATEKA</p><p><strong>Uwabihaye:</strong>#Helper_@47</p><p><strong>Umwaka:</strong>${new Date().getFullYear()}</p><button onclick="window.print()">Sohora Certificate</button>`;
+}
+// Load
+window.onload=function(){
+  updateMessages();
+  displayAnswers();
+}
+// Emoji animation
+function createEmoji(){
+  const emoji=document.createElement('div');
+  emoji.className='emoji';
+  emoji.style.left=Math.random()*100+'vw';
+  emoji.style.top=Math.random()*20+'%';
+  emoji.innerText=["❤️","😊","💬","🎉","🌟"][Math.floor(Math.random()*5)];
+  document.body.appendChild(emoji);
+  setTimeout(()=>{emoji.remove()},4000);
+}
+setInterval(createEmoji,700);
+</script>
+</body>
+</html>
